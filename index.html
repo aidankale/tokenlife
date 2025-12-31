@@ -1,52 +1,135 @@
-<style>
-  body {
-    font-family: system-ui, -apple-system, sans-serif;
-    background: #f5f5f5;
-    margin: 0;
-    padding: 16px;
-  }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOKEN LIFE</title>
 
-  .container {
-    max-width: 420px;
-  }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-  h1 {
-    margin: 0 0 28px 0;
-    font-size: 40px;
-    letter-spacing: 2px;
-  }
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f2f2f2;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
 
-  .token-row {
-    margin-bottom: 24px;
-  }
+    h1 {
+      font-size: 44px;
+      margin: 0 0 32px 0;
+      letter-spacing: 2px;
+    }
 
-  .token-label {
-    font-size: 16px;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-  }
+    .token-row {
+      margin-bottom: 36px;
+    }
 
-  .token-line {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
+    .token-label {
+      font-size: 18px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
 
-  .token {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
+    .token-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-  .count {
-    font-size: 24px;
-  }
+    .token {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
 
-  .gas { background: #ffcc00; }
-  .food { background: #ff7a7a; }
-  .snacks { background: #8bc34a; }
-  .subscriptions { background: #64b5f6; }
-</style>
+    .count {
+      font-size: 32px;
+      font-weight: 500;
+      padding-left: 16px;
+    }
+
+    /* token colors */
+    .gas { background: #ffcc00; }
+    .food { background: #ff7a7a; }
+    .snacks { background: #8bc34a; }
+    .subscriptions { background: #64b5f6; }
+  </style>
+</head>
+
+<body>
+
+  <h1>TOKEN LIFE</h1>
+
+  <div class="token-row">
+    <div class="token-label">Gas</div>
+    <div class="token-line">
+      <button class="token gas" onclick="useToken('gas')"></button>
+      <div class="count" id="gas-count">×0</div>
+    </div>
+  </div>
+
+  <div class="token-row">
+    <div class="token-label">Food</div>
+    <div class="token-line">
+      <button class="token food" onclick="useToken('food')"></button>
+      <div class="count" id="food-count">×0</div>
+    </div>
+  </div>
+
+  <div class="token-row">
+    <div class="token-label">Candy / Snacks</div>
+    <div class="token-line">
+      <button class="token snacks" onclick="useToken('snacks')"></button>
+      <div class="count" id="snacks-count">×0</div>
+    </div>
+  </div>
+
+  <div class="token-row">
+    <div class="token-label">Subscriptions</div>
+    <div class="token-line">
+      <button class="token subscriptions" onclick="useToken('subscriptions')"></button>
+      <div class="count" id="subscriptions-count">×0</div>
+    </div>
+  </div>
+
+  <script>
+    const tokens = ['gas', 'food', 'snacks', 'subscriptions'];
+
+    function loadTokens() {
+      tokens.forEach(t => {
+        const value = parseInt(localStorage.getItem(t)) || 0;
+        document.getElementById(`${t}-count`).textContent = `×${value}`;
+      });
+    }
+
+    function useToken(type) {
+      let value = parseInt(localStorage.getItem(type)) || 0;
+      if (value <= 0) return;
+
+      value--;
+      localStorage.setItem(type, value);
+      document.getElementById(`${type}-count`).textContent = `×${value}`;
+    }
+
+    function initDefaults() {
+      if (localStorage.length === 0) {
+        localStorage.setItem('gas', 7);
+        localStorage.setItem('food', 20);
+        localStorage.setItem('snacks', 15);
+        localStorage.setItem('subscriptions', 1);
+      }
+    }
+
+    initDefaults();
+    loadTokens();
+  </script>
+
+</body>
+</html>
