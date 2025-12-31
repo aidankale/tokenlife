@@ -23,6 +23,12 @@
       letter-spacing: 2px;
     }
 
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px 20px;
+    }
+
     .token-row {
       margin-bottom: 36px;
     }
@@ -47,19 +53,48 @@
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
       flex-shrink: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 36px;
+      font-weight: 600;
+      color: #000;
     }
 
-    .count {
-      font-size: 32px;
-      font-weight: 500;
-      padding-left: 16px;
-    }
-
-    /* token colors */
+    /* TOKEN COLORS */
     .gas { background: #ffcc00; }
-    .food { background: #ff7a7a; }
     .snacks { background: #8bc34a; }
-    .subscriptions { background: #64b5f6; }
+    .alcohol { background: #7e57c2; }
+    .other { background: #64b5f6; }
+    .dunkin { background: #ff8c00; }
+    .traderjoes { background: #d32f2f; }
+    .meal { background: #7b1f1f; }
+
+    .reset-button {
+      margin-top: 24px;
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 8px;
+      background: #444;
+      color: #fff;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .disabled {
+      color: #9e9e9e !important;
+    }
+
+    .token.disabled {
+      background: #d3d3d3 !important;
+      box-shadow: none;
+      color: #9e9e9e;
+    }
   </style>
 </head>
 
@@ -67,45 +102,78 @@
 
   <h1>TOKEN LIFE</h1>
 
-  <div class="token-row">
-    <div class="token-label">Gas</div>
-    <div class="token-line">
-      <button class="token gas" onclick="useToken('gas')"></button>
-      <div class="count" id="gas-count">×0</div>
+  <div class="token-grid">
+
+    <div class="token-row">
+      <div class="token-label" id="gas-label">GAS</div>
+      <div class="token-line">
+        <button class="token gas" onclick="useToken('gas')" id="gas-count">0</button>
+      </div>
+    </div>
+
+    <div class="token-row">
+      <div class="token-label" id="traderjoes-label">TRADER JOE’S</div>
+      <div class="token-line">
+        <button class="token traderjoes" onclick="useToken('traderjoes')" id="traderjoes-count">0</button>
+      </div>
+    </div>
+
+    <div class="token-row">
+      <div class="token-label" id="dunkin-label">DUNKIN</div>
+      <div class="token-line">
+        <button class="token dunkin" onclick="useToken('dunkin')" id="dunkin-count">0</button>
+      </div>
+    </div>
+
+    <div class="token-row">
+      <div class="token-label" id="meal-label">MEAL</div>
+      <div class="token-line">
+        <button class="token meal" onclick="useToken('meal')" id="meal-count">0</button>
+      </div>
+    </div>
+
+    <div class="token-row">
+      <div class="token-label" id="snacks-label">CANDY / SNACKS</div>
+      <div class="token-line">
+        <button class="token snacks" onclick="useToken('snacks')" id="snacks-count">0</button>
+      </div>
+    </div>
+
+    <div class="token-row">
+      <div class="token-label" id="alcohol-label">ALCOHOL</div>
+      <div class="token-line">
+        <button class="token alcohol" onclick="useToken('alcohol')" id="alcohol-count">0</button>
+      </div>
+    </div>
+
+    <div class="token-row">
+      <div class="token-label" id="other-label">OTHER</div>
+      <div class="token-line">
+        <button class="token other" onclick="useToken('other')" id="other-count">0</button>
+      </div>
     </div>
   </div>
 
-  <div class="token-row">
-    <div class="token-label">Food</div>
-    <div class="token-line">
-      <button class="token food" onclick="useToken('food')"></button>
-      <div class="count" id="food-count">×0</div>
-    </div>
-  </div>
-
-  <div class="token-row">
-    <div class="token-label">Candy / Snacks</div>
-    <div class="token-line">
-      <button class="token snacks" onclick="useToken('snacks')"></button>
-      <div class="count" id="snacks-count">×0</div>
-    </div>
-  </div>
-
-  <div class="token-row">
-    <div class="token-label">Subscriptions</div>
-    <div class="token-line">
-      <button class="token subscriptions" onclick="useToken('subscriptions')"></button>
-      <div class="count" id="subscriptions-count">×0</div>
-    </div>
-  </div>
+  <button class="reset-button" onclick="resetTokens()">
+    RESET TOKENS
+  </button>
 
   <script>
-    const tokens = ['gas', 'food', 'snacks', 'subscriptions'];
+    const tokens = [
+      'gas',
+      'traderjoes',
+      'dunkin',
+      'meal',
+      'snacks',
+      'alcohol',
+      'other'
+    ];
 
     function loadTokens() {
       tokens.forEach(t => {
         const value = parseInt(localStorage.getItem(t)) || 0;
-        document.getElementById(`${t}-count`).textContent = `×${value}`;
+        document.getElementById(`${t}-count`).textContent = value;
+        updateDisabledState(t, value);
       });
     }
 
@@ -115,16 +183,39 @@
 
       value--;
       localStorage.setItem(type, value);
-      document.getElementById(`${type}-count`).textContent = `×${value}`;
+      document.getElementById(`${type}-count`).textContent = value;
+      updateDisabledState(type, value);
+    }
+
+    function updateDisabledState(type, value) {
+      const tokenEl = document.getElementById(`${type}-count`);
+      const labelEl = document.getElementById(`${type}-label`);
+
+      if (value === 0) {
+        tokenEl.classList.add('disabled');
+        labelEl.classList.add('disabled');
+      } else {
+        tokenEl.classList.remove('disabled');
+        labelEl.classList.remove('disabled');
+      }
     }
 
     function initDefaults() {
       if (localStorage.length === 0) {
         localStorage.setItem('gas', 7);
-        localStorage.setItem('food', 20);
-        localStorage.setItem('snacks', 15);
-        localStorage.setItem('subscriptions', 1);
+        localStorage.setItem('snacks', 8);
+        localStorage.setItem('alcohol', 4);
+        localStorage.setItem('dunkin', 6);
+        localStorage.setItem('traderjoes', 3);
+        localStorage.setItem('meal', 4);
+        localStorage.setItem('other', 5);
       }
+    }
+
+    function resetTokens() {
+      localStorage.clear();
+      initDefaults();
+      loadTokens();
     }
 
     initDefaults();
