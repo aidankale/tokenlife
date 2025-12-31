@@ -110,6 +110,29 @@
       margin: 0 auto;
     }
 
+    .particle {
+      position: fixed;
+      width: 6px;
+      height: 10px;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: shard-fall 900ms cubic-bezier(.2,.7,.3,1) forwards;
+    }
+
+    @keyframes shard-fall {
+      0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform:
+          translate(var(--dx), var(--dy))
+          rotate(var(--rot));
+        opacity: 0;
+      }
+    }
+
   </style>
 </head>
 
@@ -188,6 +211,20 @@
       'other'
     ];
 
+    const clickSounds = [
+      'SFX/Token_1.wav',
+      'SFX/Token_2.wav',
+      'SFX/Token_3.wav',
+      'SFX/Token_4.wav',
+      'SFX/Token_5.wav'
+    ];
+
+    function playClickSound() {
+      const src = clickSounds[Math.floor(Math.random() * clickSounds.length)];
+      const audio = new Audio(src);
+      audio.play();
+    }
+
     function loadTokens() {
       tokens.forEach(t => {
         const value = parseInt(localStorage.getItem(t)) || 0;
@@ -201,9 +238,45 @@
       if (value <= 0) return;
 
       value--;
+      playClickSound();
       localStorage.setItem(type, value);
-      document.getElementById(`${type}-count`).textContent = value;
+      const tokenEl = document.getElementById(`${type}-count`);
+      tokenEl.textContent = value;
+      spawnParticles(tokenEl);
       updateDisabledState(type, value);
+    }
+
+    function spawnParticles(tokenEl) {
+      const rect = tokenEl.getBoundingClientRect();
+      const color = getComputedStyle(tokenEl).backgroundColor;
+
+      const shardCount = 32; // many more shards
+
+      for (let i = 0; i < shardCount; i++) {
+        const shard = document.createElement('div');
+        shard.className = 'particle';
+        shard.style.background = color;
+
+        // start at token center
+        shard.style.left = `${rect.left + rect.width / 2}px`;
+        shard.style.top = `${rect.top + rect.height / 2}px`;
+
+        // true radial explosion
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 140 + Math.random() * 120;
+
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance;
+        const rot = `${(Math.random() - 0.5) * 900}deg`;
+
+        shard.style.setProperty('--dx', `${dx}px`);
+        shard.style.setProperty('--dy', `${dy}px`);
+        shard.style.setProperty('--rot', rot);
+
+        document.body.appendChild(shard);
+
+        setTimeout(() => shard.remove(), 900);
+      }
     }
 
     function updateDisabledState(type, value) {
@@ -236,7 +309,7 @@
       initDefaults();
       loadTokens();
     }
-
+    
     initDefaults();
     loadTokens();
   </script>
