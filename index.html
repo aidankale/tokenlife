@@ -221,6 +221,7 @@
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let clickBuffers = [];
+    let lastSoundIndex = -1;
 
     const clickAudioPool = clickSounds.map(src => {
       const a = new Audio(src);
@@ -235,9 +236,14 @@
 
       if (clickBuffers.length === 0) return;
 
-      const buffer = clickBuffers[
-        Math.floor(Math.random() * clickBuffers.length)
-      ];
+      let index;
+      do {
+        index = Math.floor(Math.random() * clickBuffers.length);
+      } while (index === lastSoundIndex && clickBuffers.length > 1);
+
+      lastSoundIndex = index;
+
+      const buffer = clickBuffers[index];
 
       const source = audioCtx.createBufferSource();
       source.buffer = buffer;
