@@ -219,9 +219,18 @@
       'SFX/Token_5.mp3'
     ];
 
+    const clickAudioPool = clickSounds.map(src => {
+      const a = new Audio(src);
+      a.preload = 'auto';
+      return a;
+    });
+
     function playClickSound() {
-      const src = clickSounds[Math.floor(Math.random() * clickSounds.length)];
-      const audio = new Audio(src);
+      const audio = clickAudioPool[
+        Math.floor(Math.random() * clickAudioPool.length)
+      ];
+
+      audio.currentTime = 0;
       audio.play();
     }
 
