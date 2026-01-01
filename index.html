@@ -133,6 +133,60 @@
       }
     }
 
+    /* RESET CONFIRM MODAL */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .modal {
+      background: #fff;
+      padding: 24px 22px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 320px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .modal h2 {
+      margin: 0 0 16px 0;
+      font-size: 20px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 12px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .modal-cancel {
+      background: #e0e0e0;
+    }
+
+    .modal-confirm {
+      background: #444;
+      color: #fff;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
   </style>
 </head>
 
@@ -194,10 +248,20 @@
       </div>
     </div>
 
-    <button class="reset-button" onclick="resetTokens()">
+    <button class="reset-button" onclick="openResetModal()">
       RESET TOKENS
     </button>
 
+  </div>
+
+  <div id="reset-modal" class="modal-backdrop" style="display:none;">
+    <div class="modal">
+      <h2>Reset all tokens?</h2>
+      <div class="modal-buttons">
+        <button class="modal-cancel" onclick="closeResetModal()">Cancel</button>
+        <button class="modal-confirm" onclick="confirmReset()">Reset</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -338,6 +402,21 @@
         localStorage.setItem('meal', 4);
         localStorage.setItem('other', 5);
       }
+    }
+
+    function openResetModal() {
+      document.getElementById('reset-modal').style.display = 'flex';
+      document.body.classList.add('modal-open');
+    }
+
+    function closeResetModal() {
+      document.getElementById('reset-modal').style.display = 'none';
+      document.body.classList.remove('modal-open');
+    }
+
+    function confirmReset() {
+      closeResetModal();
+      resetTokens();
     }
 
     function resetTokens() {
