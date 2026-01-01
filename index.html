@@ -24,6 +24,27 @@
       text-align: center;
     }
 
+    .header-row {
+      position: relative;
+      margin-bottom: 32px;
+    }
+
+    .header-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #1e3a8a; /* dark blue */
+    }
+
+    .header-button:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
     .token-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -194,7 +215,18 @@
 
   <div class="app">
 
-    <h1>TOKEN LIFE</h1>
+    <div class="header-row">
+      <button
+        class="header-button"
+        style="right: 0;"
+        onclick="undoLastMove()"
+        id="undo-button"
+      >
+        ↶
+      </button>
+
+      <h1>TOKEN LIFE</h1>
+    </div>
 
     <div class="token-grid">
 
@@ -286,6 +318,7 @@
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let clickBuffers = [];
     let lastSoundIndex = -1;
+    let undoStack = [];
 
     const clickAudioPool = clickSounds.map(src => {
       const a = new Audio(src);
@@ -327,6 +360,30 @@
       let value = parseInt(localStorage.getItem(type)) || 0;
       if (value <= 0) return;
 
+      undoStack.push({
+        type,
+        previousValue: value
+      });
+
+      function undoLastMove() {
+        if (undoStack.length === 0) return;
+
+        const lastMove = undoStack.pop();
+        const { type, previousValue } = lastMove;
+
+        localStorage.setItem(type, previousValue);
+
+        const tokenEl = document.getElementById(`${type}-count`);
+        tokenEl.textContent = previousValue;
+
+        updateDisabledState(type, previousValue);
+        updateUndoButton();
+      }
+
+      function updateUndoButton() {
+        document.getElementById('undo-button').disabled = undoStack.length === 0;
+      }
+
       value--;
       playClickSound();
       localStorage.setItem(type, value);
@@ -334,6 +391,7 @@
       tokenEl.textContent = value;
       spawnParticles(tokenEl);
       updateDisabledState(type, value);
+      updateUndoButton();
     }
 
     function spawnParticles(tokenEl) {
@@ -421,8 +479,10 @@
 
     function resetTokens() {
       localStorage.clear();
+      undoStack = [];
       initDefaults();
       loadTokens();
+      updateUndoButton();
     }
     
     loadClickSounds();
