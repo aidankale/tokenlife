@@ -82,6 +82,77 @@
       cursor: default;
     }
 
+    .mute-button {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      position: relative;
+      padding: 0;
+
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* speaker body */
+    .mute-button::before {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 9px;
+      width: 8px;
+      height: 14px;
+      background: #ec4899;
+    }
+
+    /* speaker cone */
+    .mute-button span {
+      position: absolute;
+      left: 10px;
+      top: 7px;
+      width: 0;
+      height: 0;
+      border-top: 9px solid transparent;
+      border-bottom: 9px solid transparent;
+      border-left: 10px solid #ec4899;
+    }
+
+    /* sound waves */
+    .mute-button i {
+      position: absolute;
+      border: 3px solid #ec4899;
+      border-left: none;
+      border-radius: 0 50% 50% 0;
+    }
+
+    .mute-button i.wave1 {
+      left: 22px;
+      top: 10px;
+      width: 6px;
+      height: 12px;
+    }
+
+    .mute-button i.wave2 {
+      left: 22px;
+      top: 6px;
+      width: 10px;
+      height: 20px;
+    }
+
+    /* slash (muted state) */
+    .mute-button.muted::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 24px;
+      height: 4px;
+      background: #ec4899;
+      transform: rotate(-45deg);
+    }
+
     .token-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -255,8 +326,8 @@
     <h1>TOKEN LIFE</h1>
 
     <div class="header-controls">
+      <button class="mute-button muted" onclick="toggleMute()" id="mute-button"></button>
       <button class="undo-button" onclick="undoLastMove()" id="undo-button"></button>
-      <!-- left button will go here later -->
     </div>
 
     <div class="token-grid">
@@ -355,6 +426,25 @@
     let undoStack = [];
     let undoBuffer = null;
     let resetBuffer = null;
+    let soundEnabled = false;
+
+    const muteBtn = document.getElementById('mute-button');
+    muteBtn.innerHTML = `
+      <span></span>
+      <i class="wave1"></i>
+      <i class="wave2"></i>
+    `;
+    
+    function toggleMute() {
+      soundEnabled = !soundEnabled;
+
+      const btn = document.getElementById('mute-button');
+      btn.classList.toggle('muted', !soundEnabled);
+
+      if (soundEnabled && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
 
     function undoLastMove() {
       if (undoStack.length === 0) return;
@@ -383,6 +473,7 @@
     });
 
     function playClickSound() {
+      if (!soundEnabled) return;
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
@@ -405,6 +496,7 @@
     }
 
     function playUndoSound() {
+      if (!soundEnabled) return;
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
@@ -418,6 +510,7 @@
     }
 
     function playResetSound() {
+      if (!soundEnabled) return;
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
