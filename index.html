@@ -100,10 +100,10 @@
     .mute-button::before {
       content: '';
       position: absolute;
-      left: 2px;
-      top: 9px;
-      width: 8px;
-      height: 14px;
+      left: 10px;
+      top: 12px;
+      width: 6px;
+      height: 8px;
       background: #ec4899;
     }
 
@@ -116,39 +116,39 @@
       height: 0;
       border-top: 9px solid transparent;
       border-bottom: 9px solid transparent;
-      border-left: 10px solid #ec4899;
+      border-right: 10px solid #ec4899;
     }
 
     /* sound waves */
     .mute-button i {
       position: absolute;
-      border: 3px solid #ec4899;
+      border: 2.5px solid #ec4899;
       border-left: none;
       border-radius: 0 50% 50% 0;
     }
 
     .mute-button i.wave1 {
       left: 22px;
-      top: 10px;
+      top: 12px;
       width: 6px;
-      height: 12px;
+      height: 8px;
     }
 
     .mute-button i.wave2 {
       left: 22px;
-      top: 6px;
+      top: 8px;
       width: 10px;
-      height: 20px;
+      height: 16px;
     }
 
     /* slash (muted state) */
     .mute-button.muted::after {
       content: '';
       position: absolute;
-      left: 4px;
-      top: 4px;
-      width: 24px;
-      height: 4px;
+      left: 8px;
+      top: 14px;
+      width: 28px;
+      height: 3px;
       background: #ec4899;
       transform: rotate(-45deg);
     }
@@ -326,7 +326,7 @@
     <h1>TOKEN LIFE</h1>
 
     <div class="header-controls">
-      <button class="mute-button muted" onclick="toggleMute()" id="mute-button"></button>
+      <button class="mute-button" onclick="toggleMute()" id="mute-button"></button>
       <button class="undo-button" onclick="undoLastMove()" id="undo-button"></button>
     </div>
 
@@ -426,7 +426,7 @@
     let undoStack = [];
     let undoBuffer = null;
     let resetBuffer = null;
-    let soundEnabled = false;
+    let soundEnabled = true;
 
     const muteBtn = document.getElementById('mute-button');
     muteBtn.innerHTML = `
