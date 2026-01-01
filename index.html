@@ -347,12 +347,14 @@
     ];
 
     const undoSound = 'SFX/Undo.mp3';
+    const resetSound = 'SFX/Reset.mp3';
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let clickBuffers = [];
     let lastSoundIndex = -1;
     let undoStack = [];
     let undoBuffer = null;
+    let resetBuffer = null;
 
     function undoLastMove() {
       if (undoStack.length === 0) return;
@@ -411,6 +413,19 @@
 
       const source = audioCtx.createBufferSource();
       source.buffer = undoBuffer;
+      source.connect(audioCtx.destination);
+      source.start(0);
+    }
+
+    function playResetSound() {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      if (!resetBuffer) return;
+
+      const source = audioCtx.createBufferSource();
+      source.buffer = resetBuffer;
       source.connect(audioCtx.destination);
       source.start(0);
     }
@@ -500,6 +515,10 @@
       const res = await fetch(undoSound);
       const arrayBuffer = await res.arrayBuffer();
       undoBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+      const resetRes = await fetch(resetSound);
+      const resetArrayBuffer = await resetRes.arrayBuffer();
+      resetBuffer = await audioCtx.decodeAudioData(resetArrayBuffer);
     }
 
     function initDefaults() {
@@ -525,6 +544,7 @@
     }
 
     function confirmReset() {
+      playResetSound();
       closeResetModal();
       resetTokens();
     }
