@@ -219,6 +219,9 @@
       'SFX/Token_5.mp3'
     ];
 
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let clickBuffers = [];
+
     const clickAudioPool = clickSounds.map(src => {
       const a = new Audio(src);
       a.preload = 'auto';
@@ -226,12 +229,20 @@
     });
 
     function playClickSound() {
-      const audio = clickAudioPool[
-        Math.floor(Math.random() * clickAudioPool.length)
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      if (clickBuffers.length === 0) return;
+
+      const buffer = clickBuffers[
+        Math.floor(Math.random() * clickBuffers.length)
       ];
 
-      audio.currentTime = 0;
-      audio.play();
+      const source = audioCtx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioCtx.destination);
+      source.start(0);
     }
 
     function loadTokens() {
@@ -301,6 +312,16 @@
       }
     }
 
+    async function loadClickSounds() {
+      clickBuffers = await Promise.all(
+        clickSounds.map(async src => {
+          const res = await fetch(src);
+          const arrayBuffer = await res.arrayBuffer();
+          return await audioCtx.decodeAudioData(arrayBuffer);
+        })
+      );
+    }
+
     function initDefaults() {
       if (localStorage.length === 0) {
         localStorage.setItem('gas', 7);
@@ -319,6 +340,7 @@
       loadTokens();
     }
     
+    loadClickSounds();
     initDefaults();
     loadTokens();
   </script>
