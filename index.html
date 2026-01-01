@@ -22,6 +22,11 @@
       margin: 0 0 16px 0;
       letter-spacing: 2px;
       text-align: center;
+
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     .header-row {
@@ -323,7 +328,7 @@
 
   <div class="app">
 
-    <h1>TOKEN LIFE</h1>
+    <h1 onclick="playTitleSound()">TOKEN LIFE</h1>
 
     <div class="header-controls">
       <button class="mute-button" onclick="toggleMute()" id="mute-button"></button>
@@ -419,6 +424,7 @@
 
     const undoSound = 'SFX/Undo.mp3';
     const resetSound = 'SFX/Reset.mp3';
+    const titleSound = 'SFX/TOKEN_LIFE.mp3';
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let clickBuffers = [];
@@ -427,6 +433,7 @@
     let undoBuffer = null;
     let resetBuffer = null;
     let soundEnabled = true;
+    let titleBuffer = null;
 
     const muteBtn = document.getElementById('mute-button');
     muteBtn.innerHTML = `
@@ -523,6 +530,19 @@
       source.start(0);
     }
 
+    function playTitleSound() {
+      if (!soundEnabled) return;
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      if (!titleBuffer) return;
+
+      const source = audioCtx.createBufferSource();
+      source.buffer = titleBuffer;
+      source.connect(audioCtx.destination);
+      source.start(0);
+    }
+
     function loadTokens() {
       tokens.forEach(t => {
         const value = parseInt(localStorage.getItem(t)) || 0;
@@ -612,6 +632,10 @@
       const resetRes = await fetch(resetSound);
       const resetArrayBuffer = await resetRes.arrayBuffer();
       resetBuffer = await audioCtx.decodeAudioData(resetArrayBuffer);
+
+      const titleRes = await fetch(titleSound);
+      const titleArrayBuffer = await titleRes.arrayBuffer();
+      titleBuffer = await audioCtx.decodeAudioData(titleArrayBuffer);
     }
 
     function initDefaults() {
